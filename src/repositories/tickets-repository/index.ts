@@ -47,7 +47,7 @@ async function findTickeWithTypeById(ticketId: number) {
   });
 }
 
-async function ticketProcessPayment(ticketId: number) {
+function ticketProcessPayment(ticketId: number) {
   return prisma.ticket.update({
     where: {
       id: ticketId,
