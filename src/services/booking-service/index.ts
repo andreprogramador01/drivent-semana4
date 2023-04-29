@@ -1,6 +1,8 @@
 import { Booking } from '@prisma/client';
 import bookingRepository from '@/repositories/booking-repository';
-import { notFoundError } from '@/errors';
+import ticketsRepository from '@/repositories/tickets-repository';
+import { forbiddenError, notFoundError } from '@/errors';
+import enrollmentRepository from '@/repositories/enrollment-repository';
 
 async function getBookingByUserId(userId: number) {
   const booking = await bookingRepository.getBookingByUserId(userId);
@@ -9,6 +11,27 @@ async function getBookingByUserId(userId: number) {
   }
   return booking;
 }
+async function createBooking(userId: number, roomId: number) {
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
+  if (!enrollment) {
+    throw forbiddenError();
+  }
+  const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
 
-const bookingService = { getBookingByUserId };
+  if (!ticket || ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
+    throw forbiddenError();
+  }
+  const booking = await bookingRepository.getBookingByRoomId(roomId);
+
+  const room = await bookingRepository.getRoomById(roomId);
+
+  if (booking.length === room.capacity) {
+    throw forbiddenError();
+  }
+  const newBooking = await bookingRepository.insertBooking(roomId, userId);
+
+  return newBooking.id;
+}
+
+const bookingService = { getBookingByUserId, createBooking };
 export default bookingService;

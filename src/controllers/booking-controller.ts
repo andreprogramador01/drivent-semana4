@@ -13,3 +13,14 @@ export async function getBooking(req: AuthenticatedRequest, res: Response, next:
     next(err);
   }
 }
+export async function createBooking(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  const userId = req.userId;
+  const { roomId } = req.body;
+  try {
+    const bookingId = await bookingService.createBooking(Number(roomId), Number(userId));
+
+    res.status(httpStatus.OK).send(bookingId);
+  } catch (error) {
+    next(error);
+  }
+}

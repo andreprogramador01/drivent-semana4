@@ -10,7 +10,32 @@ async function getBookingByUserId(userId: number) {
     },
   });
 }
+async function getBookingByRoomId(roomId: number) {
+  return prisma.booking.findMany({
+    where: {
+      roomId,
+    },
+  });
+}
+async function getRoomById(roomId: number) {
+  return prisma.room.findFirst({
+    where: {
+      id: roomId,
+    },
+  });
+}
+async function insertBooking(roomId: number, userId: number) {
+  return prisma.booking.create({
+    data: {
+      roomId,
+      userId,
+    },
+  });
+}
 
 export default {
   getBookingByUserId,
+  getBookingByRoomId,
+  getRoomById,
+  insertBooking,
 };
