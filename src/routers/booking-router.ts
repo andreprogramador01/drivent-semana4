@@ -5,7 +5,7 @@ import { authenticateToken } from '@/middlewares';
 const bookingRouter = Router();
 
 bookingRouter
-  .all('/', authenticateToken)
+  .all('/*', authenticateToken)
   .get('/', getBooking)
   .post('/', createBooking)
   .put('/:bookingId', updateBooking);
